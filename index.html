@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <title>Canvas with (0, 0) at Bottom Center</title>
+    <style>
+
+        body {
+            font-family: "DM Sans", sans-serif;
+        }
+
+        main {
+            margin: auto;
+            width: fit-content;
+            contain: paint;
+        }
+        section {
+            position: relative;
+            width: fit-content;
+            margin-top: 16rem;
+            transform: scale(0.9);
+        }
+        canvas {
+            background-color: gainsboro;
+            border-radius: 900px 900px 1rem 1rem;
+            transform: translateY(0.25rem);
+        }
+        img {
+            position: absolute;
+            bottom: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: center center;
+            pointer-events: none;
+        }
+
+        #range {
+            transform: translateX(-50%) rotate(-9deg);
+            transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        #index {
+            bottom: -75px;
+            transform-origin: center center;
+        }
+
+        img.mystyle {
+            opacity: 0;
+        }
+
+        canvas {
+            width: 100%;
+        }
+
+        .navigation-result {
+            padding-top: 1rem;
+            margin-top: 4rem;
+            border-top: 1px solid black;
+        }
+
+        h1 {
+            max-width: 16ch;
+        }
+
+    </style>
+</head>
+<body>
+    <main>
+    <section>
+        <canvas id="myCanvas" width="400" height="200"></canvas>
+        <img src="Frame 2.svg" id="range">
+        <img src="Range.svg" id="index">
+    </section>
+
+    <div class="navigation-result">
+    <h1 id="precision">Tester vos amis et à quelle point vous êtes sur la même longueur d'onde!</h1>
+    <button onclick="setRandomAngle()">Start</button>
+    <button onclick="hideRange()">HIDE OR SHOW</button>
+    </div>
+</main>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const range = document.getElementById('range');
+        const precisionTitle = document.getElementById('precision')
+
+        ctx.translate(canvas.width / 2, canvas.height);
+        ctx.scale(1, -1);
+
+        function getAngle(x, y) {
+            const radians = Math.atan2(y, x);
+            const degrees = (radians * 180) / Math.PI;
+            return degrees; 
+        }
+
+        let randomAngle; // Déclaration globale
+
+        function hideRange() {
+            range.classList.toggle("mystyle");
+        }
+
+        function setRandomAngle() {
+            randomAngle = Math.floor(Math.random() * (160 - 9 + 1)) + 9;
+            rotateRange(randomAngle, range);
+            console.log(`Angle aléatoire : ${randomAngle}°`);
+        }
+
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mouseX = Math.round((event.clientX - rect.left) * scaleX - canvas.width / 2);
+            const mouseY = Math.round(-(event.clientY - rect.top) * scaleY + canvas.height);
+
+            // Effacer le contenu précédent du canvas
+            ctx.clearRect(-canvas.width / 2, 0, canvas.width, canvas.height);
+
+            // Dessiner le nouveau trait
+
+
+            const angleDegrees = getAngle(mouseX, mouseY);
+            const precisionPourcentage = precision(angleDegrees, randomAngle); // Utiliser la valeur stockée de randomAngle
+
+            console.log(`Angle sélectionné : ${angleDegrees}°`);
+            precisionTitle.innerHTML = `Vous êtes sur la même longeur d'onde à ${precisionPourcentage}%`;
+        });
+
+        function indexMove(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mouseX = Math.round((event.clientX - rect.left) * scaleX - canvas.width / 2);
+            const mouseY = Math.round(-(event.clientY - rect.top) * scaleY + canvas.height);
+
+            const angleDegrees = getAngle(mouseX, mouseY);
+            rotateRange(angleDegrees, index);
+        }
+
+        canvas.addEventListener('mousemove', indexMove);
+
+
+
+
+
+
+        
+        function precision(valeurCible, valeurActuelle) {
+            let precisionPourcentage = 110 - Math.abs(valeurCible - valeurActuelle);
+            if (precisionPourcentage >= 100) {
+                precisionPourcentageRange = 100
+            } else {
+                precisionPourcentageRange = precisionPourcentage
+            }
+            return Math.floor(precisionPourcentageRange);
+        }
+
+
+        function rotateRange(angle, id) {
+            let modifyAngle = angle * -1;
+            id.style.transform = `translateX(-50%) rotate(${modifyAngle}deg)`;
+        }
+
+
+    </script>
+</body>
+</html>
